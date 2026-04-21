@@ -1,34 +1,45 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
+import { NowPlayingBar } from "./containers/now-playing-bar/NowPlayingBar";
+import { Content } from "./containers/content/Content";
+import { Sidebar } from "./containers/sidebar/Sidebar";
 import "./App.css";
 
+const MUSIC_PATH = "/data/music"; // change later
+
 function App() {
-  async function pickAndPlay() {
-    const file = await open({
-      multiple: false,
-      filters: [
-        {
-          name: "Audio",
-          extensions: ["mp3", "flac", "wav", "ogg"],
-        },
-      ],
+  const [library, setLibrary] = useState<string[]>([]);
+  const [currentFile, setCurrentFile] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    loadLibrary();
+  }, []);
+
+  async function loadLibrary() {
+    const files = await invoke<string[]>("scan_music_folder", {
+      path: MUSIC_PATH,
     });
 
-    if (file && typeof file === "string") {
-      await invoke("play_file", { path: file });
-    }
+    setLibrary(files);
   }
+  
+  async function play(file: string) {
+    setCurrentFile(file);
+    setIsPlaying(true);
 
+    await invoke("play_file", { path: file });
+  }
+  
   return (
-    <main className="container">
-      <h1>Welcome</h1>
-      <div className="row">
-        <button onClick={pickAndPlay}>Choose Song</button>
-        <button onClick={() => invoke("pause")}>Pause</button>
-        <button onClick={() => invoke("resume")}>Resume</button>
-      </div>
+    <main className="app">
+      <Sidebar library={library} onPlay={play} />
+      <Content />
+      <NowPlayingBar
+        file={currentFile}
+        isPlaying={isPlaying}
+        setIsPlaying={setIsPlaying}
+      />
     </main>
   );
 }

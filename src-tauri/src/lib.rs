@@ -1,6 +1,7 @@
 use std::{
     fs::File,
     io::BufReader,
+    path::PathBuf,
     sync::mpsc::{channel, Sender},
     thread,
 };
@@ -12,6 +13,34 @@ enum AudioCommand {
     Pause,
     Resume,
     Stop,
+}
+
+#[tauri::command]
+fn scan_music_folder(path: String) -> Result<Vec<String>, String> {
+    let mut results = Vec::new();
+
+    fn visit(dir: &PathBuf, out: &mut Vec<String>) {
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+
+                if path.is_dir() {
+                    visit(&path, out);
+                } else if let Some(ext) = path.extension() {
+                    if matches!(
+                        ext.to_string_lossy().to_lowercase().as_str(),
+                        "mp3" | "flac" | "wav" | "ogg"
+                    ) {
+                        out.push(path.to_string_lossy().to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    visit(&PathBuf::from(path), &mut results);
+
+    Ok(results)
 }
 
 #[tauri::command]
@@ -75,7 +104,8 @@ pub fn run() {
             play_file,
             pause,
             resume,
-            stop
+            stop,
+            scan_music_folder
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri app");
