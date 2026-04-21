@@ -7,6 +7,12 @@ function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
 
+  async function play() {
+    await invoke("play_file", {
+      path: "/data/music/test.mp3",
+    });
+  }
+
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     setGreetMsg(await invoke("greet", { name }));
@@ -28,7 +34,9 @@ function App() {
         </a>
       </div>
       <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
+      <button onClick={play}>Play Song</button>
+      <button onClick={() => invoke("pause")}>Pause</button>
+      <button onClick={() => invoke("resume")}>Resume</button>
       <form
         className="row"
         onSubmit={(e) => {
