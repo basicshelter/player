@@ -1,99 +1,10 @@
-use std::{
-    fs::File,
-    io::BufReader,
-    path::PathBuf,
-    sync::mpsc::{channel, Sender},
-    thread,
-};
+mod db;
+mod library;
+mod models;
+mod player;
 
-use rodio::{Decoder, OutputStream, Sink};
-
-enum AudioCommand {
-    Play(String),
-    Pause,
-    Resume,
-    Stop,
-}
-
-#[tauri::command]
-fn scan_music_folder(path: String) -> Result<Vec<String>, String> {
-    let mut results = Vec::new();
-
-    fn visit(dir: &PathBuf, out: &mut Vec<String>) {
-        if let Ok(entries) = std::fs::read_dir(dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-
-                if path.is_dir() {
-                    visit(&path, out);
-                } else if let Some(ext) = path.extension() {
-                    if matches!(
-                        ext.to_string_lossy().to_lowercase().as_str(),
-                        "mp3" | "flac" | "wav" | "ogg"
-                    ) {
-                        out.push(path.to_string_lossy().to_string());
-                    }
-                }
-            }
-        }
-    }
-
-    visit(&PathBuf::from(path), &mut results);
-
-    Ok(results)
-}
-
-#[tauri::command]
-fn play_file(path: String, tx: tauri::State<Sender<AudioCommand>>) {
-    let _ = tx.send(AudioCommand::Play(path));
-}
-
-#[tauri::command]
-fn pause(tx: tauri::State<Sender<AudioCommand>>) {
-    let _ = tx.send(AudioCommand::Pause);
-}
-
-#[tauri::command]
-fn resume(tx: tauri::State<Sender<AudioCommand>>) {
-    let _ = tx.send(AudioCommand::Resume);
-}
-
-#[tauri::command]
-fn stop(tx: tauri::State<Sender<AudioCommand>>) {
-    let _ = tx.send(AudioCommand::Stop);
-}
-
-fn start_audio_thread() -> Sender<AudioCommand> {
-    let (tx, rx) = channel::<AudioCommand>();
-
-    thread::spawn(move || {
-        let (_stream, handle) = OutputStream::try_default().unwrap();
-        let sink = Sink::try_new(&handle).unwrap();
-
-        loop {
-            match rx.recv() {
-                Ok(AudioCommand::Play(path)) => {
-                    sink.stop();
-
-                    if let Ok(file) = File::open(path) {
-                        if let Ok(source) = Decoder::new(BufReader::new(file)) {
-                            sink.append(source);
-                            sink.play();
-                        }
-                    }
-                }
-
-                Ok(AudioCommand::Pause) => sink.pause(),
-                Ok(AudioCommand::Resume) => sink.play(),
-                Ok(AudioCommand::Stop) => sink.stop(),
-
-                Err(_) => break,
-            }
-        }
-    });
-
-    tx
-}
+use library::*;
+use player::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -105,6 +16,7 @@ pub fn run() {
             pause,
             resume,
             stop,
+            load_library,
             scan_music_folder
         ])
         .run(tauri::generate_context!())

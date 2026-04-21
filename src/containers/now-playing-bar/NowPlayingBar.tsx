@@ -19,6 +19,7 @@ export function NowPlayingBar({
     await invoke("resume");
     setIsPlaying(true);
   }
+  
   return (
     <div className="playerbar">
       <div style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
