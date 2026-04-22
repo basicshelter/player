@@ -1,6 +1,5 @@
 use std::{
   fs::File,
-  io::BufReader,
   sync::mpsc::{channel, Sender},
   thread,
 };
@@ -12,7 +11,7 @@ pub enum AudioCommand {
   Pause,
   Resume,
   Stop,
-  Seek(String, f64),
+  Seek(f64),
   GetPosition(Sender<f64>),
   GetDuration(Sender<f64>),
 }
@@ -56,8 +55,8 @@ pub fn get_duration(tx: tauri::State<Sender<AudioCommand>>) -> f64 {
 }
 
 #[tauri::command]
-pub fn seek(path: String, pos: f64, tx: tauri::State<Sender<AudioCommand>>) {
-    let _ = tx.send(AudioCommand::Seek(path, pos));
+pub fn seek(pos: f64, tx: tauri::State<Sender<AudioCommand>>) {
+    let _ = tx.send(AudioCommand::Seek(pos));
 }
 
 pub fn start_audio_thread() -> Sender<AudioCommand> {
@@ -69,6 +68,7 @@ pub fn start_audio_thread() -> Sender<AudioCommand> {
         let mut started_at: Option<Instant> = None;
         let mut paused_pos = Duration::ZERO;
         let mut total_duration = Duration::ZERO;
+        let mut is_paused = false;
 
         loop {
             match rx.recv() {
@@ -76,12 +76,13 @@ pub fn start_audio_thread() -> Sender<AudioCommand> {
                     player.stop();
 
                     if let Ok(file) = File::open(path) {
-                        if let Ok(source) = Decoder::new(BufReader::new(file)) {
+                        if let Ok(source) = Decoder::try_from(file) {
                             total_duration = source.total_duration().unwrap_or(Duration::ZERO);
                             player.append(source);
                             player.play();
                             started_at = Some(Instant::now());
                             paused_pos = Duration::ZERO;
+                            is_paused = false;
                         }
                     }
                 }
@@ -89,15 +90,18 @@ pub fn start_audio_thread() -> Sender<AudioCommand> {
                 Ok(AudioCommand::Pause) => {
                   player.pause();
               
-                  if let Some(start) = started_at {
-                      paused_pos += start.elapsed();
-                      started_at = None;
-                  }
+                  if let Some(start) = started_at.take() {
+                    paused_pos += start.elapsed();
+                }
+            
+                is_paused = true;
               }
               
               Ok(AudioCommand::Resume) => {
-                  player.play();
-                  started_at = Some(Instant::now());
+                player.play();
+
+                started_at = Some(Instant::now());
+                is_paused = false;
               }
                 Ok(AudioCommand::Stop) => player.stop(),
                 Ok(AudioCommand::GetPosition(reply)) => {
@@ -112,19 +116,23 @@ pub fn start_audio_thread() -> Sender<AudioCommand> {
               Ok(AudioCommand::GetDuration(reply)) => {
                 let _ = reply.send(total_duration.as_secs_f64());
             }
-            Ok(AudioCommand::Seek(path,sec)) => {
+            Ok(AudioCommand::Seek(sec)) => {
+              let target = Duration::from_secs_f64(sec);
 
-                player.stop();
-            
-                if let Ok(file) = File::open(path) {
-                    if let Ok(source) = Decoder::try_from(file) {
-                        player.append(source.skip_duration(Duration::from_secs_f64(sec)));
-                        player.play();
-            
-                        paused_pos = Duration::from_secs_f64(sec);
-                        started_at = Some(Instant::now());
-                    }
-              }
+              match player.try_seek(target) {
+                Ok(_) => {
+                  paused_pos = target;
+          
+                  if is_paused {
+                      started_at = None;
+                  } else {
+                      started_at = Some(Instant::now());
+                  }
+                },
+                Err(e) => println!("seek failed: {:?}", e),
+            }
+          
+             
           }
 
                 Err(_) => break,

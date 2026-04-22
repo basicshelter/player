@@ -25,9 +25,9 @@ export const Progress = () => {
   const onseek = useCallback(
     (pos: number) => {
       if (!track) return;
-      dispatch(seek({ path: track.path, pos }));
+      dispatch(seek(pos));
     },
-    [track?.path, dispatch],
+    [track, dispatch],
   );
 
   const formatTime = useCallback((sec: number) => {
@@ -49,8 +49,10 @@ export const Progress = () => {
         max={duration}
         step="0.1"
         value={position}
-        onChange={(e) => { onseek(Number(e.currentTarget.value));
+        onChange={(e) => {
+          onseek(Number(e.currentTarget.value));
         }}
+        disabled={!track}
       />
 
       <span>{formatTime(duration)}</span>
