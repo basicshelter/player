@@ -1,9 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { tauriApi } from "../../shared/tauri/api";
 
-export const playFile = createAsyncThunk("player/play", async (path: string) => {
-  return await tauriApi.playFile(path);
-});
+export const playFile = createAsyncThunk(
+  "player/play",
+  async (path: string) => {
+    return await tauriApi.playFile(path);
+  },
+);
 
 export const pause = createAsyncThunk("player/pause", async () => {
   return await tauriApi.pause();
@@ -12,3 +15,18 @@ export const pause = createAsyncThunk("player/pause", async () => {
 export const resume = createAsyncThunk("player/resume", async () => {
   return await tauriApi.resume();
 });
+
+export const getPosition = createAsyncThunk("player/getPosition", async () => {
+  return await tauriApi.getPosition();
+});
+
+export const getDuration = createAsyncThunk("player/getDuration", async () => {
+  return await tauriApi.getDuration();
+});
+
+export const seek = createAsyncThunk(
+  "player/seek",
+  async ({ path, pos }: { path: string; pos: number }) => {
+    return await tauriApi.seek(path, pos);
+  },
+);

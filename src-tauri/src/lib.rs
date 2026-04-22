@@ -16,6 +16,9 @@ pub fn run() {
             pause,
             resume,
             stop,
+            get_position,
+            get_duration,
+            seek,
             load_library,
             scan_music_folder
         ])

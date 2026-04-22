@@ -2,13 +2,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../../store/store";
 import { Track } from "../../types/track";
-import { pause, playFile, resume } from "./playerThunks";
+import {
+  getDuration,
+  getPosition,
+  pause,
+  playFile,
+  resume,
+} from "./playerThunks";
 
 interface PlayerState {
   currentTrack: Track | null;
   isPlaying: boolean;
-  currentTime: number;
   duration: number;
+  position: number;
   // volume: number;
   // queue: Track[];
   // repeatMode;
@@ -18,8 +24,8 @@ interface PlayerState {
 const initialState: PlayerState = {
   currentTrack: null,
   isPlaying: false,
-  currentTime: 0,
   duration: 0,
+  position: 0,
 };
 
 export const playerSlice = createSlice({
@@ -35,7 +41,19 @@ export const playerSlice = createSlice({
       })
       .addCase(resume.fulfilled, (state) => {
         state.isPlaying = true;
-      });
+      })
+      .addCase(
+        getPosition.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.position = action.payload;
+        },
+      )
+      .addCase(
+        getDuration.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.duration = action.payload;
+        },
+      );
   },
   reducers: {
     setCurrentTrack: (state, action: PayloadAction<Track>) => {
@@ -44,12 +62,12 @@ export const playerSlice = createSlice({
   },
 });
 
-export const {setCurrentTrack} = playerSlice.actions;
+export const { setCurrentTrack } = playerSlice.actions;
 
 export const selectCurrentTrack = (state: RootState) =>
   state.player.currentTrack;
 export const selectIsPlaying = (state: RootState) => state.player.isPlaying;
-export const selectCurrentTime = (state: RootState) => state.player.currentTime;
+export const selectPosition = (state: RootState) => state.player.position;
 export const selectDuration = (state: RootState) => state.player.duration;
 
 export default playerSlice.reducer;

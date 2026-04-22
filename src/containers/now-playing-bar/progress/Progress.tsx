@@ -1,30 +1,59 @@
+import { useCallback, useEffect } from "react";
+import {
+  selectCurrentTrack,
+  selectDuration,
+  selectPosition,
+} from "../../../features/player/playerSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { getPosition, seek } from "../../../features/player/playerThunks";
+
 export const Progress = () => {
-  // function formatTime(sec: number) {
-  //   if (!isFinite(sec)) return "0:00";
+  const dispatch = useAppDispatch();
+  const track = useAppSelector(selectCurrentTrack);
+  const position = useAppSelector(selectPosition);
+  const duration = useAppSelector(selectDuration);
 
-  //   const m = Math.floor(sec / 60);
-  //   const s = Math.floor(sec % 60);
+  useEffect(() => {
+    if (!track) return;
+    const id = setInterval(async () => {
+      dispatch(getPosition());
+    }, 250);
 
-  //   return `${m}:${s.toString().padStart(2, "0")}`;
-  // }
-  
+    return () => clearInterval(id);
+  }, [track]);
+
+  const onseek = useCallback(
+    (pos: number) => {
+      if (!track) return;
+      dispatch(seek({ path: track.path, pos }));
+    },
+    [track?.path, dispatch],
+  );
+
+  const formatTime = useCallback((sec: number) => {
+    if (!isFinite(sec)) return "0:00";
+
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  }, []);
+
   return (
-    <div> Progress
-      {/* <span>{formatTime(currentTime)}</span>
+    <div>
+      <span>{formatTime(position)}</span>
 
       <input
         type="range"
         min="0"
         max={duration}
         step="0.1"
-        value={currentTime}
-        onInput={(e) => setPreview(Number(e.currentTarget.value))}
-        onChange={(e) => {
-          audio.currentTime = Number(e.currentTarget.value);
+        value={position}
+        onChange={(e) => { onseek(Number(e.currentTarget.value));
         }}
       />
 
-      <span>{formatTime(duration)}</span> */}
+      <span>{formatTime(duration)}</span>
     </div>
   );
 };
