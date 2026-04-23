@@ -6,4 +6,7 @@ pub struct Track {
     pub title: String,
     pub artist: String,
     pub album: String,
+    pub track_number: u32,
+    pub disk_number: u32,
+    pub year: u16,
 }

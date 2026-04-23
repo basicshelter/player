@@ -7,7 +7,7 @@ use lofty::file::TaggedFileExt;
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::UNIX_EPOCH;
+use std::time::{UNIX_EPOCH};
 
 #[tauri::command]
 pub fn load_library() -> Result<Vec<Track>, String> {
@@ -86,6 +86,10 @@ fn read_track_metadata(path: &Path) -> Result<Track, String> {
   let mut title = fallback_title;
   let mut artist = "Unknown Artist".to_string();
   let mut album = "Unknown Album".to_string();
+  
+  let mut track_number = 0;
+  let mut disk_number = 0;
+  let mut year = 0;
 
   if let Ok(tagged_file) = Probe::open(path)
       .map_err(|e| e.to_string())?
@@ -103,6 +107,18 @@ fn read_track_metadata(path: &Path) -> Result<Track, String> {
           if let Some(v) = tag.album() {
               album = v.to_string();
           }
+
+          if let Some(v) = tag.track() {
+              track_number = v;
+          }
+
+          if let Some(v) = tag.disk() {
+              disk_number = v;
+          }
+
+          if let Some(v) = tag.date() {
+              year = v.year;
+          }
       }
   }
 
@@ -111,6 +127,9 @@ fn read_track_metadata(path: &Path) -> Result<Track, String> {
       title,
       artist,
       album,
+      track_number,
+      disk_number,
+      year,
   })
 }
 

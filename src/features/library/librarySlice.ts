@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../../store/store";
 import { Track } from "../../types/track";
@@ -9,6 +9,7 @@ interface LibraryState {
   artists: string[];
   // albums: string[];
   loading: boolean;
+  selectedArtist: string | null;
   // filters
   // searchQuery
   // sortMode
@@ -19,14 +20,18 @@ const initialState: LibraryState = {
   artists: [],
   // albums: [],
   loading: false,
+  selectedArtist: null,
 };
 
 export const librarySlice = createSlice({
   name: "library",
   initialState,
   reducers: {
+    setSelectedArtist: (state, action: PayloadAction<string>) => {
+      state.selectedArtist = action.payload;
+    },
   },
-  extraReducers:(builder) =>{
+  extraReducers: (builder) => {
     builder
       .addCase(loadLibrary.pending, (state) => {
         state.loading = true;
@@ -50,9 +55,17 @@ export const librarySlice = createSlice({
   },
 });
 
+export const { setSelectedArtist } = librarySlice.actions;
 
 export const selectSongs = (state: RootState) => state.library.songs;
 export const selectArtists = (state: RootState) => state.library.artists;
+export const selectSelectedArtist = (state: RootState) => state.library.selectedArtist;
 export const selectLoading = (state: RootState) => state.library.loading;
+
+export const selectArtistSongs = createSelector(
+  selectSongs,
+  selectSelectedArtist,
+  (songs, artist) => songs.filter((s) => s.artist === artist),
+);
 
 export default librarySlice.reducer;

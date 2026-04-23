@@ -1,28 +1,27 @@
 import { useCallback } from "react";
-import { selectSongs } from "../../features/library/librarySlice";
+import {
+  selectArtists,
+  setSelectedArtist,
+} from "../../features/library/librarySlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Track } from "../../types/track";
 import "./Sidebar.css";
-import { playFile } from "../../features/player/playerThunks";
-import { setCurrentTrack } from "../../features/player/playerSlice";
 
 export function Sidebar() {
   const dispatch = useAppDispatch();
-  const songs = useAppSelector(selectSongs);
-  const play = useCallback(
-    (track: Track) => {
-      dispatch(setCurrentTrack(track));
-      dispatch(playFile(track.path));
-    },
-    [dispatch],
-  );
+  const artists = useAppSelector(selectArtists);
+  
+  const selectArtist = useCallback((artist: string) => {
+    dispatch(setSelectedArtist(artist));
+  }, []);
   return (
     <div className="sidebar">
-      {songs.map((track) => (
-        <div key={track.path} onClick={() => play(track)}>
-          {track.artist} - {track.title}
-        </div>
-      ))}
+      <ul>
+        {artists.map((artist) => (
+          <li key={artist} onClick={() => selectArtist(artist)}>
+            {artist}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

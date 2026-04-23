@@ -26,6 +26,9 @@ pub fn init_schema(conn: &Connection) {
           title TEXT NOT NULL,
           artist TEXT NOT NULL,
           album TEXT NOT NULL,
+          track_number INTEGER,
+          disk_number INTEGER,
+          year INTEGER,
           modified_at INTEGER NOT NULL
       )
       ",
@@ -45,14 +48,20 @@ pub fn save_track(
             title,
             artist,
             album,
+            track_number,
+            disk_number,
+            year,
             modified_at
         )
-        VALUES (?1, ?2, ?3, ?4, ?5)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
 
         ON CONFLICT(path) DO UPDATE SET
             title = excluded.title,
             artist = excluded.artist,
             album = excluded.album,
+            track_number = excluded.track_number,
+            disk_number = excluded.disk_number,
+            year = excluded.year,
             modified_at = excluded.modified_at
         ",
         params![
@@ -60,6 +69,9 @@ pub fn save_track(
             track.title,
             track.artist,
             track.album,
+            track.track_number,
+            track.disk_number,
+            track.year,
             modified_at
         ],
     )
@@ -78,12 +90,16 @@ pub fn load_tracks() -> Result<Vec<Track>, String> {
                 path,
                 title,
                 artist,
-                album
+                album,
+                track_number,
+                disk_number,
+                year
             FROM tracks
             ORDER BY
                 artist COLLATE NOCASE,
+                year COLLATE,
                 album COLLATE NOCASE,
-                title COLLATE NOCASE
+                track_number COLLATE
             ",
         )
         .map_err(|e| e.to_string())?;
@@ -95,6 +111,9 @@ pub fn load_tracks() -> Result<Vec<Track>, String> {
                 title: row.get(1)?,
                 artist: row.get(2)?,
                 album: row.get(3)?,
+                track_number: row.get(4)?,
+                disk_number: row.get(5)?,
+                year: row.get(6)?,
             })
         })
         .map_err(|e| e.to_string())?;
