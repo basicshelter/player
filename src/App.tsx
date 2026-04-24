@@ -5,6 +5,7 @@ import { Content } from "./containers/content/Content";
 import { Sidebar } from "./containers/sidebar/Sidebar";
 import { loadLibrary } from "./features/library/libraryThunks";
 import { useAppDispatch } from "./store/hooks";
+import { useTrackEndListener } from "./types/useTrackEndListener";
 import "./App.css";
 
 function App() {
@@ -12,7 +13,9 @@ function App() {
 
   useEffect(() => {
     dispatch(loadLibrary());
-  }, []);
+  }, [dispatch]);
+
+  useTrackEndListener();
 
   return (
     <main className="app">

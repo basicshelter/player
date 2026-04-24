@@ -1,3 +1,5 @@
+use tauri::Manager;
+
 mod db;
 mod library;
 mod models;
@@ -10,7 +12,15 @@ use player::*;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .manage(start_audio_thread())
+        .setup(|app| {
+            let handle = app.handle();
+
+            let tx = start_audio_thread(handle.clone());
+
+            app.manage(tx);
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             play_file,
             pause,

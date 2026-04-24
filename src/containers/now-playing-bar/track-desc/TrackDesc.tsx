@@ -1,8 +1,8 @@
-import { selectCurrentTrack } from "../../../features/player/playerSlice";
+import { selectCurrentSong } from "../../../features/player/playerSlice";
 import { useAppSelector } from "../../../store/hooks";
 
 export const TrackDesc = () => {
-  const track = useAppSelector(selectCurrentTrack);
+  const track = useAppSelector(selectCurrentSong);
   if (!track) return null;
 
   return (

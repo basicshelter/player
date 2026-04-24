@@ -97,9 +97,8 @@ pub fn load_tracks() -> Result<Vec<Track>, String> {
             FROM tracks
             ORDER BY
                 artist COLLATE NOCASE,
-                year COLLATE,
                 album COLLATE NOCASE,
-                track_number COLLATE
+                track_number
             ",
         )
         .map_err(|e| e.to_string())?;

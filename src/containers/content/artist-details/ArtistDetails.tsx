@@ -2,8 +2,7 @@ import { useCallback, useMemo } from "react";
 import { selectArtistSongs } from "../../../features/library/librarySlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Track } from "../../../types/track";
-import { playFile } from "../../../features/player/playerThunks";
-import { setCurrentTrack } from "../../../features/player/playerSlice";
+import { setQueue } from "../../../features/player/playerSlice";
 
 type GroupedSongs = {
   album: string;
@@ -17,6 +16,7 @@ type GroupedSongs = {
 export const ArtistDetails = ({ artist }: { artist: string }) => {
   const dispatch = useAppDispatch();
   const songs = useAppSelector(selectArtistSongs);
+
   const songsGroupedByAlbum = useMemo(() => {
     const albumMap = new Map<
       string,
@@ -60,9 +60,8 @@ export const ArtistDetails = ({ artist }: { artist: string }) => {
   }, [songs]);
 
   const play = useCallback(
-    (track: Track) => {
-      dispatch(setCurrentTrack(track));
-      dispatch(playFile(track.path));
+    (songs: Track[], startIndex: number) => {
+      dispatch(setQueue({songs, startIndex}));
     },
     [dispatch],
   );
@@ -72,11 +71,13 @@ export const ArtistDetails = ({ artist }: { artist: string }) => {
       <h1>{artist}</h1>
       {songsGroupedByAlbum.map((a) => (
         <div key={a.album} className="album">
-          <h2>{a.album} ({a.year})</h2>
+          <h2>
+            {a.album} ({a.year})
+          </h2>
           {a.discs.length === 1 && (
             <ol>
-              {a.discs[0].songs.map((s, _, arr) => (
-                <li key={s.path} className="song" onClick={() => play(s)}>
+              {a.discs[0].songs.map((s, ind, arr) => (
+                <li key={s.path} className="song" onClick={() => play(arr, ind)}>
                   {s.track_number} / {arr.length} - {s.title}
                 </li>
               ))}
@@ -88,8 +89,8 @@ export const ArtistDetails = ({ artist }: { artist: string }) => {
                 <>
                   <h3>Disk {d.diskNumber || i + 1}</h3>
                   <ol>
-                    {d.songs.map((s, _, arr) => (
-                      <li key={s.path} className="song" onClick={() => play(s)}>
+                    {d.songs.map((s, ind, arr) => (
+                      <li key={s.path} className="song" onClick={() => play(arr, ind)}>
                         {s.track_number} / {arr.length} - {s.title}
                       </li>
                     ))}

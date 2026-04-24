@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import librarySlice from "../features/library/librarySlice";
-import playerSlice from "../features/player/playerSlice";
-import { playerListenerMiddleware } from "../features/player/playerMiddleware";
+import playerSlice, { listenerMiddleware } from "../features/player/playerSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -9,8 +9,9 @@ export const store = configureStore({
     library: librarySlice,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().prepend(playerListenerMiddleware.middleware),
+    getDefaultMiddleware().prepend(listenerMiddleware.middleware),
 });
+
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

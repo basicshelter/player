@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 import {
-  selectCurrentTrack,
+  selectCurrentSong,
   selectDuration,
   selectPosition,
 } from "../../../features/player/playerSlice";
@@ -9,7 +9,7 @@ import { getPosition, seek } from "../../../features/player/playerThunks";
 
 export const Progress = () => {
   const dispatch = useAppDispatch();
-  const track = useAppSelector(selectCurrentTrack);
+  const track = useAppSelector(selectCurrentSong);
   const position = useAppSelector(selectPosition);
   const duration = useAppSelector(selectDuration);
 

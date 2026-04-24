@@ -1,6 +1,6 @@
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
-  selectCurrentTrack,
+  selectCurrentSong,
   selectIsPlaying,
 } from "../../../features/player/playerSlice";
 import { useCallback } from "react";
@@ -9,7 +9,7 @@ import { pause, resume } from "../../../features/player/playerThunks";
 export const PlayPause = () => {
   const dispatch = useAppDispatch();
   const playing = useAppSelector(selectIsPlaying);
-  const track = useAppSelector(selectCurrentTrack);
+  const track = useAppSelector(selectCurrentSong);
 
   const onpause = useCallback(() => {
     dispatch(pause());
