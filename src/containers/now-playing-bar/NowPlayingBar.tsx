@@ -3,12 +3,16 @@ import { Progress } from "./progress/Progress";
 import { TrackDesc } from "./track-desc/TrackDesc";
 import { Volume } from "./volume/Volume";
 import "./NowPlayingBar.css";
+import { Prev } from "./prev/Prev";
+import { Next } from "./next/Next";
 
 export function NowPlayingBar() {
   return (
     <div className="playerbar">
       <TrackDesc />
+      <Prev />
       <PlayPause />
+      <Next />
       <Progress />
       <Volume />
     </div>

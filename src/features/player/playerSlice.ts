@@ -90,11 +90,20 @@ export const selectIsPlaying = (state: RootState) => state.player.isPlaying;
 export const selectPosition = (state: RootState) => state.player.position;
 export const selectDuration = (state: RootState) => state.player.duration;
 
+export const selectHasPrev = (state: RootState) =>
+  state.player.currentIndex > 0;
+export const selectHasNext = createSelector(
+  selectQueue,
+  selectCurrentIndex,
+  (songs, index) => songs.length > index + 1,
+);
+
 export const selectCurrentSong = createSelector(
   selectQueue,
   selectCurrentIndex,
   (songs, index) => (songs.length > index ? songs[index] : null),
 );
+
 
 export default playerSlice.reducer;
 
