@@ -29,6 +29,7 @@ pub fn run() {
             get_position,
             get_duration,
             seek,
+            set_volume,
             load_library,
             scan_music_folder
         ])

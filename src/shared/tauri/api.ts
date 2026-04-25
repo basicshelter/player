@@ -9,6 +9,7 @@ export const tauriApi = {
   getPosition: () => invoke<number>("get_position"),
   getDuration: () => invoke<number>("get_duration"),
   seek: (pos: number) => invoke("seek", { pos }),
+  setVolume: (volume: number) => invoke("set_volume", { volume }),
 
   loadLibrary: () => invoke<Track[]>("load_library"),
   scanMusicFolder: (path: string) =>

@@ -27,3 +27,8 @@ export const getDuration = createAsyncThunk("player/getDuration", async () => {
 export const seek = createAsyncThunk("player/seek", async (pos: number) => {
   return await tauriApi.seek(pos);
 });
+
+export const setVolume = createAsyncThunk("player/setVolume", async (vol: number) => {
+  await tauriApi.setVolume(vol);
+  return vol;
+});

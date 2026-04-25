@@ -1,6 +1,6 @@
 use std::{
   fs::File,
-  sync::mpsc::{channel, Sender, RecvTimeoutError},
+  sync::{mpsc::{RecvTimeoutError, Sender, channel}},
   thread,
   time::{Duration, Instant}
 };
@@ -16,6 +16,7 @@ pub enum AudioCommand {
   Seek(f64),
   GetPosition(Sender<f64>),
   GetDuration(Sender<f64>),
+  SetVolume(f32)
 }
 
 #[tauri::command]
@@ -66,6 +67,11 @@ pub fn seek(pos: f64, tx: tauri::State<Sender<AudioCommand>>) {
     let _ = tx.send(AudioCommand::Seek(pos));
 }
 
+#[tauri::command]
+pub fn set_volume(volume: f32, tx: tauri::State<Sender<AudioCommand>>) {    
+    let vol = volume.clamp(0.0, 1.0);
+    let _ = tx.send(AudioCommand::SetVolume(vol));
+}
 
 pub fn start_audio_thread(app: AppHandle) -> Sender<AudioCommand> {
     let (tx, rx) = channel::<AudioCommand>();
@@ -167,6 +173,10 @@ pub fn start_audio_thread(app: AppHandle) -> Sender<AudioCommand> {
                                 }
                                 Err(e) => println!("seek failed: {:?}", e),
                             }
+                        }
+
+                        AudioCommand::SetVolume(vol) => {
+                            player.set_volume(vol) 
                         }
                     }
                 }

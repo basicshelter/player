@@ -8,13 +8,14 @@ import {
   pause,
   playFile,
   resume,
+  setVolume,
 } from "./playerThunks";
 
 interface PlayerState {
   isPlaying: boolean;
   duration: number;
   position: number;
-  // volume: number;
+  volume: number;
   queue: Track[];
   currentIndex: number;
   repeat: "off" | "one" | "all";
@@ -25,6 +26,7 @@ const initialState: PlayerState = {
   isPlaying: false,
   duration: 0,
   position: 0,
+  volume: 1.0,
   queue: [],
   currentIndex: 0,
   repeat: "off",
@@ -56,7 +58,10 @@ export const playerSlice = createSlice({
         (state, action: PayloadAction<number>) => {
           state.duration = action.payload;
         },
-      );
+      )
+      .addCase(setVolume.fulfilled, (state, action: PayloadAction<number>) => {
+        state.volume = action.payload;
+      });
   },
   reducers: {
     setQueue: (
@@ -89,6 +94,8 @@ export const selectQueue = (state: RootState) => state.player.queue;
 export const selectIsPlaying = (state: RootState) => state.player.isPlaying;
 export const selectPosition = (state: RootState) => state.player.position;
 export const selectDuration = (state: RootState) => state.player.duration;
+export const selectVolume = (state: RootState) => (state.player.volume * 100.0);
+
 
 export const selectHasPrev = (state: RootState) =>
   state.player.currentIndex > 0;
