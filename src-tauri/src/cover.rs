@@ -1,8 +1,9 @@
 use std::path::{Path, PathBuf};
-use lofty::file::TaggedFileExt;
+use lofty::file::{TaggedFileExt};
 use lofty::picture::PictureType;
 use lofty::read_from_path;
 use image::imageops::FilterType;
+use lofty::tag::Accessor;
 use sha1::{Sha1, Digest};
 use tauri::Manager;
 
@@ -14,6 +15,33 @@ pub fn get_cover_path(
     crate::cover::get_or_create_cover(&app, &track_path)
 }
 
+fn album_key(artist: Option<&str>, album: Option<&str>) -> String {
+    format!(
+        "{}::{}",
+        artist.unwrap_or("unknown").to_lowercase(),
+        album.unwrap_or("unknown").to_lowercase()
+    )
+}
+
+fn extract_album_info(path: &str) -> (Option<String>, Option<String>) {
+    let tagged = read_from_path(path).ok();
+
+    if let Some(tagged) = tagged {
+        for tag in tagged.tags() {
+            let album = tag.album().map(|s| s.to_string());
+            let artist = tag.artist()
+                .or_else(|| tag.artist())
+                .map(|s| s.to_string());
+
+            if album.is_some() || artist.is_some() {
+                return (artist, album);
+            }
+        }
+    }
+
+    (None, None)
+}
+
 pub fn hash_path(path: &str) -> String {
     let mut hasher = Sha1::new();
     hasher.update(path.as_bytes());
@@ -23,7 +51,9 @@ pub fn get_or_create_cover(
   app: &tauri::AppHandle,
   track_path: &str,
 ) -> Option<String> {
-  let hash = hash_path(track_path);
+    let (artist, album) = extract_album_info(track_path);
+    let key = album_key(artist.as_deref(), album.as_deref());
+    let hash = hash_path(&key);
 
   let mut cached = covers_dir(app);
   cached.push(format!("{hash}.jpg"));
