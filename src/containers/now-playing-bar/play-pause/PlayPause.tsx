@@ -5,6 +5,8 @@ import {
 } from "../../../features/player/playerSlice";
 import { useCallback } from "react";
 import { pause, resume } from "../../../features/player/playerThunks";
+import PlayIcon from "../../../assets/media-playback-start.svg?react";
+import PauseIcon from "../../../assets/media-playback-paused-symbolic.svg?react";
 
 export const PlayPause = () => {
   const dispatch = useAppDispatch();
@@ -19,12 +21,14 @@ export const PlayPause = () => {
   }, [dispatch]);
 
   return (
-    <div style={{ display: "flex", gap: 10 }}>
+    <div>
       {playing ? (
-        <button onClick={onpause}>Pause</button>
+        <button onClick={onpause}>
+          <PauseIcon />
+        </button>
       ) : (
         <button onClick={onresume} disabled={!track}>
-          Play
+          <PlayIcon />
         </button>
       )}
     </div>

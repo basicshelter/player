@@ -14,4 +14,8 @@ export const tauriApi = {
   loadLibrary: () => invoke<Track[]>("load_library"),
   scanMusicFolder: (path: string) =>
     invoke<Track[]>("scan_music_folder", { path }),
+
+  getCover: (trackPath: string) => 
+    invoke<string | null>("get_cover_path", { trackPath })
+  
 };

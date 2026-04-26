@@ -9,10 +9,14 @@ import { Next } from "./next/Next";
 export function NowPlayingBar() {
   return (
     <div className="playerbar">
-      <TrackDesc />
-      <Prev />
-      <PlayPause />
-      <Next />
+      <div>
+        <TrackDesc />
+        <div className="controls">
+          <Prev />
+          <PlayPause />
+          <Next />
+        </div>
+      </div>
       <Progress />
       <Volume />
     </div>

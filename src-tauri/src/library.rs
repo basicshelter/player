@@ -119,6 +119,7 @@ fn read_track_metadata(path: &Path) -> Result<Track, String> {
           if let Some(v) = tag.date() {
               year = v.year;
           }
+
       }
   }
 
@@ -129,7 +130,7 @@ fn read_track_metadata(path: &Path) -> Result<Track, String> {
       album,
       track_number,
       disk_number,
-      year,
+      year
   })
 }
 

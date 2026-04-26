@@ -1,0 +1,60 @@
+.playerbar .track {
+ display: flex;
+ height: 60px;
+ margin: 5px 0;
+}
+.playerbar .name {
+  margin: 5px auto;
+  height: 100%;
+ }
+ .playerbar .name * {
+  overflow: hidden;
+}
+.playerbar .track .cover-image {
+  height: 50px;
+  width: 50px;
+  margin: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ }
+ .playerbar .track .cover-image img{
+  height: 50px;
+  width: 50px;
+ }
+ .playerbar .track .cover-image .fallback {
+  padding: 6px;
+  background-color: #000;
+ }
+ .playerbar .track .cover-image .fallback{
+  height: 38px;
+ }
+ 
+ .playerbar .track .cover-image .fallback path{ 
+  color: #B39182;
+ }
+
+.playerbar .controls {
+  display: flex;
+ }
+ .playerbar .controls button {
+  height: 30px;
+  width: 30px;
+  border-radius: 0;
+  border: 0;
+  margin: 2px;
+  padding: 5px;
+  background: #000;
+ }
+ .playerbar .controls button svg {
+  height: 20px;
+ }
+ .playerbar .controls button path {
+  color: #B39182;
+ }
+ .playerbar .progress {
+  width: 500px;
+ }
+.playerbar .progress input{
+  width: 100%;
+}

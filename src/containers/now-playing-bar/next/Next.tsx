@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { next, selectHasNext } from "../../../features/player/playerSlice";
 import { useCallback } from "react";
+import NextIcon from '../../../assets/media-seek-forward.svg?react';
 
 export const Next = () => {
   const dispatch = useAppDispatch();
@@ -12,7 +13,7 @@ export const Next = () => {
 
   return (
     <button onClick={onnext} disabled={!hasNext}>
-      Next
+      <NextIcon />
     </button>
   );
 };

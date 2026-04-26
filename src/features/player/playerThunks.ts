@@ -32,3 +32,7 @@ export const setVolume = createAsyncThunk("player/setVolume", async (vol: number
   await tauriApi.setVolume(vol);
   return vol;
 });
+
+export const getCover = createAsyncThunk("player/getCover", async (path: string) => {
+  return await tauriApi.getCover(path);
+});

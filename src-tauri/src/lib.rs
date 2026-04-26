@@ -4,9 +4,11 @@ mod db;
 mod library;
 mod models;
 mod player;
+mod cover;
 
 use library::*;
 use player::*;
+use cover::*;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -30,6 +32,7 @@ pub fn run() {
             get_duration,
             seek,
             set_volume,
+            get_cover_path,
             load_library,
             scan_music_folder
         ])

@@ -1,4 +1,5 @@
 import { selectCurrentSong } from "../../../features/player/playerSlice";
+import { CoverImage } from "../../../shared/tauri/CoverImage";
 import { useAppSelector } from "../../../store/hooks";
 
 export const TrackDesc = () => {
@@ -7,7 +8,7 @@ export const TrackDesc = () => {
 
   return (
     <div className="track">
-      <div className="cover">Cover</div>
+      <CoverImage />
       <div className="name">
         <div className="title">{track.title}</div>
         <div className="artist">{track.artist}</div>

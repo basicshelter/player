@@ -3,6 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, type RootState } from "../../store/store";
 import { Track } from "../../types/track";
 import {
+  getCover,
   getDuration,
   getPosition,
   pause,
@@ -14,6 +15,7 @@ import {
 interface PlayerState {
   isPlaying: boolean;
   duration: number;
+  cover: string | null;
   position: number;
   volume: number;
   queue: Track[];
@@ -25,6 +27,7 @@ interface PlayerState {
 const initialState: PlayerState = {
   isPlaying: false,
   duration: 0,
+  cover: null,
   position: 0,
   volume: 1.0,
   queue: [],
@@ -61,6 +64,10 @@ export const playerSlice = createSlice({
       )
       .addCase(setVolume.fulfilled, (state, action: PayloadAction<number>) => {
         state.volume = action.payload;
+      })
+      .addCase(getCover.fulfilled, (state, action: PayloadAction<string | null>) => {
+        console.log(`getCover.fulfilled: ${action.payload}`);
+        state.cover = action.payload;
       });
   },
   reducers: {
@@ -95,6 +102,7 @@ export const selectIsPlaying = (state: RootState) => state.player.isPlaying;
 export const selectPosition = (state: RootState) => state.player.position;
 export const selectDuration = (state: RootState) => state.player.duration;
 export const selectVolume = (state: RootState) => (state.player.volume * 100.0);
+export const selectCover = (state: RootState) => state.player.cover;
 
 
 export const selectHasPrev = (state: RootState) =>
@@ -147,8 +155,10 @@ startAppListening({
 
 startAppListening({
   actionCreator: playFile.fulfilled,
-  effect: async (_, api) => {
+  effect: async (action, api) => {
+    console.log(action)
     await api.dispatch(getDuration());
+    await api.dispatch(getCover(action.meta.arg));
   },
 });
 

@@ -40,7 +40,7 @@ export const Progress = () => {
   }, []);
 
   return (
-    <div>
+    <div className="progress">
       <span>{formatTime(position)}</span>
 
       <input

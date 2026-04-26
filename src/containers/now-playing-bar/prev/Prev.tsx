@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { prev, selectHasPrev } from "../../../features/player/playerSlice";
 import { useCallback } from "react";
+import PrevIcon from "../../../assets/media-seek-backward.svg?react";
 
 export const Prev = () => {
   const dispatch = useAppDispatch();
@@ -12,7 +13,7 @@ export const Prev = () => {
 
   return (
     <button onClick={onprev} disabled={!hasPrev}>
-      Prev
+      <PrevIcon />
     </button>
   );
 };
