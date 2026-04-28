@@ -1,8 +1,15 @@
-.sidebar>div {
-  padding: 8;
-  cursor: pointer;
+.sidebar ul {
   font-size: 12;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.sidebar ul li {
+  cursor: pointer;
+  padding: 5px;
+}
+
+.sidebar ul li:hover {
+  background: #fff1;
 }

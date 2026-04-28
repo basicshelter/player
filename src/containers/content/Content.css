@@ -1,0 +1,38 @@
+.main .artist-details h1 {
+  margin-bottom: 30px;
+}
+.main .artist-details h2 {
+  margin: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+.main .artist-details h2 .album-year {
+  opacity: 0.5;
+  font-size: 0.8em;
+}
+.main .artist-details ol {
+  margin: 20px;
+  list-style-type: none;
+}
+.main .artist-details .album-content {
+  display: flex;
+}
+.main .artist-details .album-content .cover-image {
+  height: 200px;
+  width: 200px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.main .artist-details .album-content .cover-image img {
+  height: 200px;
+  width: 200px;
+}
+.main .artist-details .album-content .cover-image .fallback {
+  padding: 50px;
+  background-color: #0004;
+}
+.main .artist-details .album-content .cover-image .fallback path {
+  color: #B3918277;
+}

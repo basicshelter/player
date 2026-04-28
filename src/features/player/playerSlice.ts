@@ -1,4 +1,9 @@
-import { createListenerMiddleware, createSelector, createSlice, isAnyOf } from "@reduxjs/toolkit";
+import {
+  createListenerMiddleware,
+  createSelector,
+  createSlice,
+  isAnyOf,
+} from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { AppDispatch, type RootState } from "../../store/store";
 import { Track } from "../../types/track";
@@ -65,10 +70,13 @@ export const playerSlice = createSlice({
       .addCase(setVolume.fulfilled, (state, action: PayloadAction<number>) => {
         state.volume = action.payload;
       })
-      .addCase(getCover.fulfilled, (state, action: PayloadAction<string | null>) => {
-        console.log(`getCover.fulfilled: ${action.payload}`);
-        state.cover = action.payload;
-      });
+      .addCase(
+        getCover.fulfilled,
+        (state, action: PayloadAction<string | null>) => {
+          console.log(`getCover.fulfilled: ${action.payload}`);
+          state.cover = action.payload;
+        },
+      );
   },
   reducers: {
     setQueue: (
@@ -101,9 +109,8 @@ export const selectQueue = (state: RootState) => state.player.queue;
 export const selectIsPlaying = (state: RootState) => state.player.isPlaying;
 export const selectPosition = (state: RootState) => state.player.position;
 export const selectDuration = (state: RootState) => state.player.duration;
-export const selectVolume = (state: RootState) => (state.player.volume * 100.0);
+export const selectVolume = (state: RootState) => state.player.volume * 100.0;
 export const selectCover = (state: RootState) => state.player.cover;
-
 
 export const selectHasPrev = (state: RootState) =>
   state.player.currentIndex > 0;
@@ -119,12 +126,11 @@ export const selectCurrentSong = createSelector(
   (songs, index) => (songs.length > index ? songs[index] : null),
 );
 
-
 export default playerSlice.reducer;
 
-export const listenerMiddleware = createListenerMiddleware();
+export const playerMiddleware = createListenerMiddleware();
 
-const startAppListening = listenerMiddleware.startListening.withTypes<
+const startAppListening = playerMiddleware.startListening.withTypes<
   RootState,
   AppDispatch,
   {}
@@ -156,9 +162,8 @@ startAppListening({
 startAppListening({
   actionCreator: playFile.fulfilled,
   effect: async (action, api) => {
-    console.log(action)
+    console.log(action);
     await api.dispatch(getDuration());
     await api.dispatch(getCover(action.meta.arg));
   },
 });
-

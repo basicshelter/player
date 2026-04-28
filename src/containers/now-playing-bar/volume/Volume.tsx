@@ -11,7 +11,7 @@ export const Volume = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="volume">
       <input
         type="range"
         min="0"
