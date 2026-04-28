@@ -30,7 +30,19 @@ pub fn init_schema(conn: &Connection) {
           disk_number INTEGER,
           year INTEGER,
           modified_at INTEGER NOT NULL
-      )
+      );
+      ",
+      [],
+  ).unwrap();
+  conn.execute(
+      "
+      CREATE TABLE IF NOT EXISTS albums (
+          id INTEGER PRIMARY KEY,
+          artist TEXT,
+          album TEXT,
+          cover_path TEXT,
+          album_key TEXT UNIQUE
+      );
       ",
       [],
   ).unwrap();

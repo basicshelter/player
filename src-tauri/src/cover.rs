@@ -12,7 +12,8 @@ pub fn get_cover_path(
     app: tauri::AppHandle,
     track_path: String,
 ) -> Option<String> {
-    crate::cover::get_or_create_cover(&app, &track_path)
+    let conn = crate::db::open_db();
+    get_or_create_cover(&app, &conn, &track_path)
 }
 
 fn album_key(artist: Option<&str>, album: Option<&str>) -> String {
@@ -23,7 +24,33 @@ fn album_key(artist: Option<&str>, album: Option<&str>) -> String {
     )
 }
 
-fn extract_album_info(path: &str) -> (Option<String>, Option<String>) {
+fn get_cover_from_db(conn: &rusqlite::Connection, key: &str) -> Option<String> {
+    conn.query_row(
+        "SELECT cover_path FROM albums WHERE album_key = ?1",
+        [key],
+        |row| row.get(0),
+    ).ok()
+}
+
+fn upsert_album_cover(
+    conn: &rusqlite::Connection,
+    key: &str,
+    artist: Option<&str>,
+    album: Option<&str>,
+    cover_path: &str,
+) {
+    conn.execute(
+        r#"
+        INSERT INTO albums (artist, album, cover_path, album_key)
+        VALUES (?1, ?2, ?3, ?4)
+        ON CONFLICT(album_key)
+        DO UPDATE SET cover_path = excluded.cover_path
+        "#,
+        (artist, album, cover_path, key),
+    ).ok();
+}
+
+fn extract_album_info(path: &Path) -> (Option<String>, Option<String>) {
     let tagged = read_from_path(path).ok();
 
     if let Some(tagged) = tagged {
@@ -48,35 +75,62 @@ pub fn hash_path(path: &str) -> String {
     format!("{:x}", hasher.finalize())
 }
 pub fn get_or_create_cover(
-  app: &tauri::AppHandle,
-  track_path: &str,
+    app: &tauri::AppHandle,
+    conn: &rusqlite::Connection,
+    track_path: &str,
 ) -> Option<String> {
-    let (artist, album) = extract_album_info(track_path);
+    let path = Path::new(track_path);
+
+    // 1. extract album info
+    let (artist, album) = extract_album_info(path);
     let key = album_key(artist.as_deref(), album.as_deref());
+
+    // 2. DB lookup
+    if let Some(cover) = get_cover_from_db(conn, &key) {
+        return Some(cover);
+    }
+
+    // 3. cache path
     let hash = hash_path(&key);
+    let mut cached = covers_dir(app);
+    cached.push(format!("{hash}.jpg"));
 
-  let mut cached = covers_dir(app);
-  cached.push(format!("{hash}.jpg"));
+    // 4. file cache check (important!)
+    if cached.exists() {
+        let path_str = cached.to_string_lossy().to_string();
 
-  // 1. cache
-  if cached.exists() {
-      return Some(cached.to_string_lossy().to_string());
-  }
+        upsert_album_cover(
+            conn,
+            &key,
+            artist.as_deref(),
+            album.as_deref(),
+            &path_str,
+        );
 
-  let path = Path::new(track_path);
+        return Some(path_str);
+    }
 
-  // 2. embedded
-  let data = extract_embedded_cover(path)
-      // 3. folder fallback
-      .or_else(|| find_folder_cover(path))?;
+    // 5. extract
+    let data = extract_embedded_cover(path)
+        .or_else(|| find_folder_cover(path))?;
 
-  // 4. resize
-  let data = resize_image(&data).unwrap_or(data);
+    let data = resize_image(&data).unwrap_or(data);
 
-  // 5. cache
-  let saved = cache_cover(app, &hash, &data)?;
+    // 6. write cache
+    std::fs::write(&cached, &data).ok()?;
 
-  Some(saved.to_string_lossy().to_string())
+    let path_str = cached.to_string_lossy().to_string();
+
+    // 7. store in DB
+    upsert_album_cover(
+        conn,
+        &key,
+        artist.as_deref(),
+        album.as_deref(),
+        &path_str,
+    );
+
+    Some(path_str)
 }
 
 pub fn find_folder_cover(path: &Path) -> Option<Vec<u8>> {
@@ -130,16 +184,4 @@ pub fn resize_image(data: &[u8]) -> Option<Vec<u8>> {
     resized.write_to(&mut std::io::Cursor::new(&mut out), image::ImageFormat::Jpeg).ok()?;
 
     Some(out)
-}
-
-pub fn cache_cover(
-  app: &tauri::AppHandle,
-  hash: &str,
-  data: &[u8],
-) -> Option<PathBuf> {
-  let mut path = covers_dir(app);
-  path.push(format!("{hash}.jpg"));
-
-  std::fs::write(&path, data).ok()?;
-  Some(path)
 }
