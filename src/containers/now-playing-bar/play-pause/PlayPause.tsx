@@ -21,7 +21,7 @@ export const PlayPause = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="play-pause">
       {playing ? (
         <button onClick={onpause}>
           <PauseIcon />

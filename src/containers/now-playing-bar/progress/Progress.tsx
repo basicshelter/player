@@ -6,6 +6,7 @@ import {
 } from "../../../features/player/playerSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { getPosition, seek } from "../../../features/player/playerThunks";
+import { Slider } from "../slider/Slider";
 
 export const Progress = () => {
   const dispatch = useAppDispatch();
@@ -41,21 +42,17 @@ export const Progress = () => {
 
   return (
     <div className="progress">
-      <span>{formatTime(position)}</span>
-
-      <input
-        type="range"
-        min="0"
+      <Slider
+        id="progress"
+        min={0}
         max={duration}
-        step="0.1"
+        step={0.1}
         value={position}
-        onChange={(e) => {
-          onseek(Number(e.currentTarget.value));
-        }}
+        onChange={onseek}
         disabled={!track}
-      />
-
-      <span>{formatTime(duration)}</span>
+      >
+        {formatTime(position)} / {formatTime(duration)}
+      </Slider>
     </div>
   );
 };

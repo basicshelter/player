@@ -115,6 +115,13 @@ pub fn start_audio_thread(app: AppHandle) -> Sender<AudioCommand> {
                                     paused_pos = Duration::ZERO;
                                     is_paused = false;
                                     was_playing = true;
+
+                                    // scrobble_service.on_play(
+                                    //     track.artist.clone(),
+                                    //     track.title.clone(),
+                                    //     track.album.clone(),
+                                    //     track.duration,
+                                    // ).await;
                                 } else {
                                     println!("Failed to decode file");
                                 }
@@ -131,17 +138,20 @@ pub fn start_audio_thread(app: AppHandle) -> Sender<AudioCommand> {
                             }
 
                             is_paused = true;
+                            // scrobble_service.on_pause();
                         }
 
                         AudioCommand::Resume => {
                             player.play();
                             started_at = Some(Instant::now());
                             is_paused = false;
+                            // scrobble_service.on_resume();
                         }
 
                         AudioCommand::Stop => {
                             player.stop();
                             was_playing = false;
+                            // scrobble_service.on_stop().await;
                         }
 
                         AudioCommand::GetPosition(reply) => {

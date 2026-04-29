@@ -32,16 +32,11 @@ body {
   display: grid;
   grid-template-rows: auto auto;
 }
-.app>div {
-  display: flex;
-  /* height: 100vh;  */
-  overflow: hidden; /* Prevents main container from scrolling */
-}
 
 .sidebar {
   overflow: scroll;
   padding: 15px;
-  height: 85vh;
+  height: 90vh;
   background-color: #02130d;
 }
 
@@ -49,16 +44,14 @@ body {
   overflow: scroll;
   flex-grow: 2;
   background-color: #051f15;
-  height: 85vh;
+  height: 90vh;
   padding: 45px;
 }
 
 .playerbar {
-  height: 15vh;
+  height: 10vh;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
+  flex-direction: column;
   background: #111;
   color: #B39182;
 }

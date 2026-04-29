@@ -1,0 +1,130 @@
+@property --val {
+  syntax: '<integer>';
+  inherits: true;
+  initial-value: 0; 
+}
+@property --p {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%; 
+}
+
+label.slider {
+   /*--c: #153429; slider color */
+  --c: #B39182; /* slider color */
+  --g: round(1em,1px);  /* the gap */
+  --l: round(.15em,1px);  /* line thickness*/
+  --s: round(1em,1px); /* thumb size*/
+  /* tooltip dimension */
+  --w: round(9em,1px); /*  width */
+  --r: round(.2em,1px);  /* radius */
+  /* tail dimension */
+  --b: round(0.7em,1px); /* base */
+  --h: round(.3em,1px); /* height */
+  
+  timeline-scope: --thumb-view;
+  position: relative; /* No, It's not useless so don't remove it (or remove it and see what happens) */ 
+  font-size: 12px;
+}
+
+.slider input {
+  width: 100%;
+  height: var(--s); /* needed for Firefox*/
+  --_c: color-mix(in srgb, var(--c), #000 var(--_p,0%));
+  appearance :none;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  font-size: inherit;
+  outline: none; 
+}
+.slider input:focus-visible,
+.slider input:hover{
+  --g: 0px;
+  --c: #c9ab9f;
+  --_c: #c9ab9f;
+}
+.slider input:active,
+.slider input:focus-visible{
+  --_b: var(--s)
+}
+/* chromium */
+.slider input[type="range" i]::-webkit-slider-thumb{
+  height: var(--s);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--_b,var(--l)) inset var(--_c);
+  border-image: linear-gradient(90deg,var(--_c) 50%,#88695B 0) 0 1/calc(50% - var(--l)/2) 100vw/0 calc(100vw + var(--g));
+  -webkit-appearance: none;
+  appearance: none;
+  transition: .3s;
+  anchor-name: --thumb;
+  view-timeline: --thumb-view inline;
+}
+/* Firefox */
+.slider input[type="range"]::-moz-range-thumb {
+  height: var(--s);
+  width: var(--s);
+  background: none;
+  border-radius: 50%;
+  box-shadow: 0 0 0 var(--_b,var(--l)) inset var(--_c);
+  border-image: linear-gradient(90deg,var(--_c) 50%,#88695B 0) 0 1/calc(50% - var(--l)/2) 100vw/0 calc(100vw + var(--g));
+  -moz-appearance: none;
+  appearance: none;
+  transition: .3s;
+  anchor-name: --thumb;
+  view-timeline: --thumb-view inline;
+}
+.slider output {
+  opacity: 0%;
+  transition: opacity 0.2s ease-in;
+  position-anchor: --thumb;
+  position: absolute;
+  position-area: top;
+  place-self: unsafe anchor-center;
+  align-self: unsafe end;
+  color: #153429;
+  text-align: center;
+  padding-block: .2em;
+  width: var(--w);
+  margin-block: calc(var(--h) + var(--g));
+  translate: calc(50% - var(--p));
+  border-radius: var(--r) var(--r) min(var(--r),100% - var(--p) - var(--b)/2) min(var(--r),var(--p) - var(--b)/2)/var(--r);
+  clip-path: polygon(0 100%,0 0,100% 0,100% 100%,
+    min(100%,var(--p) + var(--b)/2) 100%,
+    var(--p) calc(100% + var(--h)),
+    max(0%  ,var(--p) - var(--b)/2) 100%);
+  background: var(--c);
+  border-image: conic-gradient(var(--c) 0 0) fill 0/
+    var(--r) calc(100% - var(--p) - var(--b)/2) 0 calc(var(--p) - var(--b)/2)/
+    0 0 var(--h) 0;
+  animation: range linear both;
+  animation-timeline: --thumb-view;
+  animation-range: entry 100% exit 0%;
+}
+.slider:hover output {
+  opacity: 85%;
+}
+.slider output.bottom {
+  position-area: bottom;
+  align-self: unsafe start;
+  border-image: conic-gradient(var(--c) 0 0) fill 0/
+    0 calc(100% - var(--p) - var(--b)/2) var(--r) calc(var(--p) - var(--b)/2)/
+    var(--h) 0 0 0;
+  border-radius: min(var(--r),var(--p) - var(--b)/2) min(var(--r),100% - var(--p) - var(--b)/2) var(--r) var(--r)/var(--r);
+  clip-path: polygon(0 0,0 100%,100% 100%,100% 0,
+    min(100%,var(--p) + var(--b)/2) 0,
+    var(--p) calc(-1*var(--h)),
+    max(0%  ,var(--p) - var(--b)/2) 0);
+}
+
+@keyframes range {
+  0%   {--val:var(--max);--p:100%}
+  100% {--val:var(--min);--p:0%}
+}
+
+@supports not (anchor-name: ---) {
+  output {
+    display: none;
+  }
+}

@@ -9,6 +9,7 @@ import { Next } from "./next/Next";
 export function NowPlayingBar() {
   return (
     <div className="playerbar">
+      <Progress />
       <div>
         <TrackDesc />
         <div className="controls">
@@ -16,9 +17,8 @@ export function NowPlayingBar() {
           <PlayPause />
           <Next />
         </div>
+        <Volume />
       </div>
-      <Progress />
-      <Volume />
     </div>
   );
 }
